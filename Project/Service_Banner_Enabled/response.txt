@@ -1,0 +1,25 @@
+HTTP/1.1 404 Not Found
+Date: Tue, 15 Aug 2017 14:11:00 GMT
+Server: Apache/2.4.27 (Debian)
+Content-Length: 292
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+.error {color: #FF0000;}
+</style>
+</head>
+<body>
+<form action="post_method.php" method="post">
+  Example value: <input name="example" type="text" />
+  Example value 2: <input name="example2" type="text" />
+  <input name="submit" type="submit" />
+</form>
+
+<h2>Your Input:</h2><br>
+</body>
+</html>
+

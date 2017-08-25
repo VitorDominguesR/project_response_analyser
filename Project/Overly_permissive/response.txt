@@ -1,0 +1,27 @@
+HTTP/1.1 200 OK
+Date: Tue, 15 Aug 2017 16:33:50 GMT
+Server: Apache/2.4.27 (Debian)
+Access-Control-Allow-Origin: $*$
+Vary: Accept-Encoding
+Content-Length: 347
+Connection: close
+Content-Type: text/html; charset=UTF-8
+
+
+<!DOCTYPE HTML>  
+<html>
+<head>
+<style>
+.error {color: #FF0000;}
+</style>
+</head>
+<body> 
+aa aa<form action="post_method.php" method="post">
+  Example value: <input name="example" type="text" />
+  Example value 2: <input name="example2" type="text" />
+  <input name="submit" type="submit" />
+</form>
+
+<h2>Your Input:</h2>aa<br>aa
+</body>
+</html>

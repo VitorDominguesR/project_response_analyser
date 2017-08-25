@@ -1,0 +1,6 @@
+CORS
+Error Handling
+Service Banner
+Métodos HTTP
+cookie
+clickjacking
