@@ -1,6 +1,6 @@
 HTTP/1.1 404 Not Found
 Date: Tue, 15 Aug 2017 14:11:00 GMT
-Server: Apache/2.4.27 (Debian)
+Server:
 Content-Length: 292
 Connection: close
 Content-Type: text/html; charset=iso-8859-1

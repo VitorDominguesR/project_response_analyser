@@ -16,14 +16,15 @@ import xml.etree.ElementTree as ET
 print os.path.dirname(os.path.abspath(__file__))
 vulns_dirs = next(os.walk(os.path.dirname(os.path.abspath(__file__))))[1]
 attack_results = []
+print vulns_dirs
 for dir in vulns_dirs:
     attack_signature = [] # sempre vai ser uma lista
 
-    path_file_request = raw_input("Digite o caminho do arquivo que contenha a requisição desejada (Default: %s/request.txt): "%dir)
+    path_file_request = raw_input("Digite o caminho do arquivo que contenha a requisição desejada (Default: %s/request_%s): "%(dir,dir))
     path_file_response = ""
     if path_file_request == "":
-        path_file_request = dir+'/request.txt'
-        path_file_response = dir + '/response.txt'
+        path_file_request = dir+'/request_'+dir#+'.txt'
+        path_file_response = dir + '/response_'+dir#+'.txt'
 
     try:
         vuln_config_file = ET.parse(dir+'/vuln.config').getroot()
