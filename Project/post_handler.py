@@ -25,7 +25,7 @@ class responseHandler():
     def get_headers_reponse(self):
         """Get headers from request and parse to a dict"""
         for x in range(1,len(self.response_raw_splited)-1):
-            values_and_keys = re.split(':(?:[\s\A])', self.response_raw_splited[x])
+            values_and_keys = re.split(':\s', self.response_raw_splited[x])
             if len(values_and_keys) > 1:
                 key, value = values_and_keys
                 self.headers[key] = value

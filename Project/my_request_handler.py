@@ -22,7 +22,8 @@ class HTTPRequestHandler():
     def get_headers(self):
         """Get headers from request and parse to a dict"""
         for x in range(1,len(self.request_raw_splited)-1):
-            key, value = re.split(':(?:[\s])', self.request_raw_splited[x])
+            y = re.split(':\s', self.request_raw_splited[x])
+            key, value = y[0],y[1]
             self.headers[key] = value
         return self.headers
 

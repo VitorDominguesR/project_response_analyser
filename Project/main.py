@@ -13,18 +13,24 @@ import xml.etree.ElementTree as ET
 # print "[1] Realizar resteste"
 # print "[2] Configurar setup"
 
+http_proxy = "http://127.0.0.1:8080"
+https_proxy = "https://127.0.0.1:8080"
+
+proxyDict = {
+    "http" : http_proxy,
+    "https" : https_proxy
+}
 print os.path.dirname(os.path.abspath(__file__))
 vulns_dirs = next(os.walk(os.path.dirname(os.path.abspath(__file__))))[1]
 attack_results = []
-print vulns_dirs
 for dir in vulns_dirs:
     attack_signature = [] # sempre vai ser uma lista
 
     path_file_request = raw_input("Digite o caminho do arquivo que contenha a requisição desejada (Default: %s/request_%s): "%(dir,dir))
     path_file_response = ""
     if path_file_request == "":
-        path_file_request = dir+'/request_'+dir#+'.txt'
-        path_file_response = dir + '/response_'+dir#+'.txt'
+        path_file_request = dir+'/request_'+dir
+        path_file_response = dir + '/response_'+dir
 
     try:
         vuln_config_file = ET.parse(dir+'/vuln.config').getroot()
@@ -46,7 +52,9 @@ for dir in vulns_dirs:
 
     request_method, request_path, request_http_version = request_field.get_http_method_path_version()
     #dict_params_in_request = request_field.get_payload()[0]
+    #print request_field.get_headers()
     request_headers = request_field.get_headers()
+    #print request_path
     request_payload = ''
 
     #attack_signature = '<script>alert(90)</script>'
@@ -75,13 +83,13 @@ for dir in vulns_dirs:
 
     if request_method == "POST":
         request_payload = request_field.get_payload()[1]
-        r = requests.post(url, data=request_payload, headers=request_headers)
+        r = requests.post(url, data=request_payload, headers=request_headers, timeout = 20)#, proxies=proxyDict)
     elif request_method == "GET":
         if request_payload == '':
             #print request_headers
-            r = requests.get(url, headers=request_headers)
+            r = requests.get(url, headers=request_headers, timeout=20)#, proxies=proxyDict)
         else:
-            r = requests.get(url, data=request_payload,headers=request_headers)
+            r = requests.get(url, data=request_payload,headers=request_headers, timeout=20)#, proxies=proxyDict)
 
     elif request_method == "OPTIONS":
         r = requests.options(url)
