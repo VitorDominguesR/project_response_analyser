@@ -125,15 +125,21 @@ class attacksTest():
         self.chanded.append("########################INICIO########################\n\nVulnerability Name:%s\n\n"%self.attack_name.upper().replace("_"," "))
 
         #self.response_handler.get_reponse_code()[1]
+        #compara o status da resposta antiga e nova
         self.reponse_code_txt = self.response_handler.get_reponse_code()[1]
-        if self.reponse_code_txt == self.r.status_code:
+        if self.reponse_code_txt == str(self.r.status_code):
             pass
         else:
             self.chanded.append("status code chaged to:%s\nOld value:%s\n\n"%(self.r.status_code,self.reponse_code_txt))
 
+        # pega os cabeçahos de resposta antigo e novo
         dict_reponse_file = self.response_handler.get_headers_reponse()
         dict_reponse_newrequest = self.r.headers
 
+        #print dict_reponse_newrequest
+        #print dict_reponse_file
+
+        #compara os cabeçalhos
         for key_reponsetxt in dict_reponse_file.keys():
             if key_reponsetxt in dict_reponse_newrequest.keys():
                 if dict_reponse_newrequest[key_reponsetxt] == dict_reponse_file[key_reponsetxt]:
@@ -151,19 +157,28 @@ class attacksTest():
         content_response_txt = [y.strip() for y in content_response_txt_temp]
         content_response_new = [x.strip() for x in content_response_new_temp]
 
-        # print content_response_txt
-        # print content_response_new
+        #print content_response_txt
+        #print content_response_new
 
+        #compara o conteudo das respostas
         diff = d.compare(content_response_txt, content_response_new )
-
-        pattern_match = re.compile('(^\-\s|^\+\s|^\?\s)', re.MULTILINE)
+        pattern_match = re.compile('(^\-\s|^\+\s|^\?\s).+', re.MULTILINE)
 
         diff = "\n".join(diff)
+
         #print diff
-        if re.match(pattern_match, diff):
-            self.chanded.append("The content has changed: \n%s\n"%diff)
+        if re.search(pattern_match, diff):
+            self.chanded.append("The content has changed:")
+            for m in re.finditer(pattern_match, diff):
+                if "-" not in m.group(0):
+                    self.chanded.append("%s" % m.group(0))
+                else:
+                    self.chanded.append("\n%s" % m.group(0))
+            self.chanded.append("\n\n\n See diff:\n%s" % diff)
         else:
             pass
+
+
         self.chanded.append("########################FIM########################\n\n")
         return self.chanded
 

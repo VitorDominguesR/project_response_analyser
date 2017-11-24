@@ -22,20 +22,25 @@ proxyDict = {
 }
 
 def teste_attack(path_vulns=""):
+
+    #identifica o caminho que os arquivos das vulnerabilidades estão
     print os.path.dirname(os.path.abspath(__file__))
     if path_vulns == "":
         vulns_dirs = next(os.walk(os.path.dirname(os.path.abspath(__file__))))[1]
     else:
         vulns_dirs = vulns_dirs = next(os.walk(os.path.dirname(path_vulns)))[1]
     attack_results = []
+    
+
     for dir in vulns_dirs:
         attack_signature = [] # sempre vai ser uma lista
 
+        # pede o caminho que os arquivos gerados pelo EGV manager estão
         path_file_request = raw_input("Digite o caminho do arquivo que contenha a requisição desejada (Default: %s/request_%s): "%(dir,dir))
         path_file_response = ""
         if path_file_request == "":
-            path_file_request = dir+'/request_'+dir
-            path_file_response = dir + '/response_'+dir
+            path_file_request = path_vulns + dir + '/request_'+dir
+            path_file_response = path_vulns + dir +'/response_'+dir
 
         # try:
         #     vuln_config_file = ET.parse(dir+'/vuln.config').getroot()
@@ -44,24 +49,31 @@ def teste_attack(path_vulns=""):
         #         attack_signature.append(element.text) # posso usar o strip
         # except:
         #     print "It was not possible to read 'vuln.config' file"
-
-        if os.path.exists(path_file_request):
+        try:
             request_file = open(path_file_request,'r').read()
-        else:
+        except Exception as e:
+            print path_file_request
             print "o arquivo %s nao existe" % path_file_request
+            print e
             return
+
+        #faz o parse dos arquivo de requisição e o le
         request_field = HTTPRequestHandler(request_file)
-
         reponse_file=open(path_file_response,'r').read()
-        #reponse_parser = post_handler.responseHandler(reponse_file)
 
+
+        #reponse_parser = post_handler.responseHandler(reponse_file)
         #print reponse_parser.get_reponse_code(), reponse_parser.get_headers_reponse(), reponse_parser.get_page_content()
 
-
+        # pega o método http utilizado, o caminho da url e a versão do HTTP
         request_method, request_path, request_http_version = request_field.get_http_method_path_version()
+
         #dict_params_in_request = request_field.get_payload()[0]
         #print request_field.get_headers()
+
+        #pega os cabeçalhos originais da requisição
         request_headers = request_field.get_headers()
+
         #print request_path
         request_payload = ''
 
@@ -89,6 +101,10 @@ def teste_attack(path_vulns=""):
             #
             # print attack_signature
 
+        #monta a url da requisição
+        url = 'http://'+request_headers['Host'] + request_path
+
+        #verifica qual metodo está sendo utilizado
         if request_method == "POST":
             request_payload = request_field.get_payload()[1]
             r = requests.post(url, data=request_payload, headers=request_headers, timeout = 20)#, proxies=proxyDict)
@@ -102,12 +118,11 @@ def teste_attack(path_vulns=""):
         elif request_method == "OPTIONS":
             r = requests.options(url)
 
-
         attack_tests = attacksTest(r,dir)
 
         #attack_results.append(attack_tests.runTests(attack_signature, dir))
         attack_results.append(attack_tests.compareResponses(reponse_file))
-
+        #print r.text
     for results in attack_results:
         print "\n".join(results)
 
@@ -140,4 +155,4 @@ def teste_attack(path_vulns=""):
 
 
 if __name__ == "__main__":
-    teste_attack('/media/veracrypt1/Relatorio/1087/PTManager/')
+    teste_attack('/media/veracrypt1/Relatorio/teste_autom/PTManager/')
