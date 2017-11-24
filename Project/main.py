@@ -23,6 +23,7 @@ proxyDict = {
 
 def teste_attack(path_vulns=""):
 
+
     #identifica o caminho que os arquivos das vulnerabilidades estão
     print os.path.dirname(os.path.abspath(__file__))
     if path_vulns == "":
