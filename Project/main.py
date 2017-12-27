@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding:utf-8 -*-
 
 from my_request_handler import HTTPRequestHandler
@@ -23,6 +24,12 @@ proxyDict = {
 
 def teste_attack(path_vulns=""):
 
+    cookies_provided = raw_input("Insira seus cookies (Exp.: cookie1=valor1;cookie2=valor2;..) ou aperte Enter\n").strip()
+    
+    if len(cookies_provided)<=0:
+        print "Não foram inseridos cookies"
+    else:
+        cookies_dict = get_inserted_cookies(cookies_provided)
 
     #identifica o caminho que os arquivos das vulnerabilidades estão
     print os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +41,7 @@ def teste_attack(path_vulns=""):
     
 
     for dir in vulns_dirs:
+        error = False
         attack_signature = [] # sempre vai ser uma lista
 
         # pede o caminho que os arquivos gerados pelo EGV manager estão
@@ -56,74 +64,139 @@ def teste_attack(path_vulns=""):
             print path_file_request
             print "o arquivo %s nao existe" % path_file_request
             print e
-            return
+            error = True
 
-        #faz o parse dos arquivo de requisição e o le
-        request_field = HTTPRequestHandler(request_file)
-        reponse_file=open(path_file_response,'r').read()
+        if not error:
+            #faz o parse dos arquivo de requisição e o le
+            request_field = HTTPRequestHandler(request_file)
+            reponse_file=open(path_file_response,'r').read()
 
 
-        #reponse_parser = post_handler.responseHandler(reponse_file)
-        #print reponse_parser.get_reponse_code(), reponse_parser.get_headers_reponse(), reponse_parser.get_page_content()
+            #reponse_parser = post_handler.responseHandler(reponse_file)
+            #print reponse_parser.get_reponse_code(), reponse_parser.get_headers_reponse(), reponse_parser.get_page_content()
 
-        # pega o método http utilizado, o caminho da url e a versão do HTTP
-        request_method, request_path, request_http_version = request_field.get_http_method_path_version()
+            # pega o método http utilizado, o caminho da url e a versão do HTTP
+            request_method, request_path, request_http_version = request_field.get_http_method_path_version()
 
-        #dict_params_in_request = request_field.get_payload()[0]
-        #print request_field.get_headers()
+            #dict_params_in_request = request_field.get_payload()[0]
+            #print request_field.get_headers()
 
-        #pega os cabeçalhos originais da requisição
-        request_headers = request_field.get_headers()
+            #pega os cabeçalhos originais da requisição
+            request_headers = request_field.get_headers()
+            #print request_headers
 
-        #print request_path
-        request_payload = ''
 
-        #attack_signature = '<script>alert(90)</script>'
+            #print request_path
+            request_payload = ''
 
-        url = 'http://'+request_headers['Host'] + request_path
+            #attack_signature = '<script>alert(90)</script>'
 
-        # print attack_signature
-        # if not attack_signature:
-            # try:
-            #     response_params = post_handler.responseHandler(reponse_file).get_signature_compare()
-            # except:
-            #     response_params = []
-            #
-            # if len(response_params) > 0:
-            #     choice =  raw_input("Foram detectados parametros para serem usados como assinaturas de ataque. Deseja us-los ?[S/n]").lower()
-            #     if choice == '':
-            #         choice = 's'
-            #     if choice == 's':
-            #         attack_signature = response_params
-            #     else:
-            #         attack_signature = raw_input("Digite uma assinatura de ataque: ").split(',')
-            # else:
-            #     attack_signature = raw_input("Digite uma assinatura de ataque: ").split(',')
-            #
             # print attack_signature
+            # if not attack_signature:
+                # try:
+                #     response_params = post_handler.responseHandler(reponse_file).get_signature_compare()
+                # except:
+                #     response_params = []
+                #
+                # if len(response_params) > 0:
+                #     choice =  raw_input("Foram detectados parametros para serem usados como assinaturas de ataque. Deseja us-los ?[S/n]").lower()
+                #     if choice == '':
+                #         choice = 's'
+                #     if choice == 's':
+                #         attack_signature = response_params
+                #     else:
+                #         attack_signature = raw_input("Digite uma assinatura de ataque: ").split(',')
+                # else:
+                #     attack_signature = raw_input("Digite uma assinatura de ataque: ").split(',')
+                #
+                # print attack_signature
 
-        #monta a url da requisição
-        url = 'http://'+request_headers['Host'] + request_path
+            #monta a url da requisição
+            try:
+                url = 'http://'+request_headers['Host'] + request_path
 
-        #verifica qual metodo está sendo utilizado
-        if request_method == "POST":
-            request_payload = request_field.get_payload()[1]
-            r = requests.post(url, data=request_payload, headers=request_headers, timeout = 20)#, proxies=proxyDict)
-        elif request_method == "GET":
-            if request_payload == '':
-                #print request_headers
-                r = requests.get(url, headers=request_headers, timeout=20)#, proxies=proxyDict)
-            else:
-                r = requests.get(url, data=request_payload,headers=request_headers, timeout=20)#, proxies=proxyDict)
+                #verifica qual metodo está sendo utilizado
+                if not cookies_provided:
+                    if request_method == "POST":
+                        request_payload = request_field.get_payload()[1]
+                        r = requests.post(url, data=request_payload, headers=request_headers, timeout = 20)#, proxies=proxyDict)
+                    elif request_method == "GET":
+                        if request_payload == '':
+                            #print request_headers
+                            r = requests.get(url, headers=request_headers, timeout=20, verify=False, proxies=proxyDict)
+                        else:
+                            r = requests.get(url, data=request_payload,headers=request_headers, timeout=20, verify=False, proxies=proxyDict)
 
-        elif request_method == "OPTIONS":
-            r = requests.options(url)
+                    elif request_method == "OPTIONS":
+                        r = requests.options(url)
+                else:
+                    request_headers.pop('Cookies', None)
+                    if request_method == "POST":
+                        request_payload = request_field.get_payload()[1]
+                        r = requests.post(url, data=request_payload, headers=request_headers,
+                                          cookies=cookies_dict,timeout=20)  # , proxies=proxyDict)
+                    elif request_method == "GET":
+                        if request_payload == '':
+                            # print request_headers
+                            r = requests.get(url, headers=request_headers,cookies=cookies_dict, timeout=20)  # , proxies=proxyDict)
+                        else:
+                            r = requests.get(url, data=request_payload,cookies=cookies_dict, headers=request_headers,
+                                             timeout=20)  # , proxies=proxyDict)
 
-        attack_tests = attacksTest(r,dir)
+                    elif request_method == "OPTIONS":
+                        r = requests.options(url,cookies=cookies_dict)
 
-        #attack_results.append(attack_tests.runTests(attack_signature, dir))
-        attack_results.append(attack_tests.compareResponses(reponse_file))
-        #print r.text
+                attack_tests = attacksTest(r,dir)
+
+                #attack_results.append(attack_tests.runTests(attack_signature, dir))
+                attack_results.append(attack_tests.compareResponses(reponse_file))
+                #print r.text
+            except:
+                url = 'https://' + request_headers['Host'] + request_path
+
+                # verifica qual metodo está sendo utilizado
+                if not cookies_provided:
+                    if request_method == "POST":
+                        request_payload = request_field.get_payload()[1]
+                        r = requests.post(url, data=request_payload, headers=request_headers,
+                                          timeout=20)  # , proxies=proxyDict)
+                    elif request_method == "GET":
+                        if request_payload == '':
+                            # print request_headers
+                            r = requests.get(url, headers=request_headers, timeout=20,
+                                             verify=False)  # , proxies=proxyDict)
+                        else:
+                            r = requests.get(url, data=request_payload, headers=request_headers, timeout=20,
+                                             verify=False)  # , proxies=proxyDict)
+
+                    elif request_method == "OPTIONS":
+                        r = requests.options(url)
+                else:
+                    request_headers.pop('Cookies', None)
+                    if request_method == "POST":
+                        request_payload = request_field.get_payload()[1]
+                        r = requests.post(url, data=request_payload, headers=request_headers,
+                                          cookies=cookies_dict, timeout=20)  # , proxies=proxyDict)
+                    elif request_method == "GET":
+                        if request_payload == '':
+                            # print request_headers
+                            r = requests.get(url, headers=request_headers, cookies=cookies_dict,
+                                             timeout=20, verify=False,proxies=proxyDict)
+                        else:
+                            r = requests.get(url, data=request_payload, cookies=cookies_dict, headers=request_headers,
+                                             timeout=20 ,verify=False, proxies=proxyDict)
+
+                    elif request_method == "OPTIONS":
+                        r = requests.options(url, cookies=cookies_dict)
+
+                attack_tests = attacksTest(r, dir)
+
+                # attack_results.append(attack_tests.runTests(attack_signature, dir))
+                attack_results.append(attack_tests.compareResponses(reponse_file))
+                # print r.text
+
+        else:
+            pass
     for results in attack_results:
         print "\n".join(results)
 
@@ -154,6 +227,21 @@ def teste_attack(path_vulns=""):
     #     else:
     #         print "Não está vulnerável"
 
+def get_inserted_cookies(cookies_str):
+    cookies_string = filter(None, cookies_str.split(';'))
+    dict_cookies = {}
+    #url = 'http://httpbin.org/cookies'
+
+    #print cookies_string
+
+    for cookies in cookies_string:
+        cookies = cookies.split("=")
+        print cookies
+
+        dict_cookies[cookies[0]] = cookies[1]
+
+    return dict_cookies
+
 
 if __name__ == "__main__":
-    teste_attack('/media/veracrypt1/Relatorio/teste_autom/PTManager/')
+    teste_attack('C:/Users/SWAT/Documents/Analises/1055/PTManager/')

@@ -7,12 +7,14 @@ from urllib import unquote
 class HTTPRequestHandler():
 
     def __init__(self, request_raw):
+        self.raw_request = request_raw
         self.http_method = ''
         self.resquest_path= ''
         self.protocol_version = ''
         self.headers = {}
         self.payload_dict = {}
-        self.request_raw_splited = filter(None,request_raw.replace('\r','').split('\n'))
+        self.payload = request_raw.split('\n\n')[1]
+        self.request_raw_splited = filter(None,request_raw.split('\n\n')[0].replace('\r','').split('\n'))
 
     def get_http_method_path_version(self):
         """Get the HTTP method, version """
@@ -21,15 +23,20 @@ class HTTPRequestHandler():
 
     def get_headers(self):
         """Get headers from request and parse to a dict"""
-        for x in range(1,len(self.request_raw_splited)-1):
+        for x in range(1,len(self.request_raw_splited)):
             y = re.split(':\s', self.request_raw_splited[x])
-            key, value = y[0],y[1]
-            self.headers[key] = value
+            if len(y)<2:
+                #print y
+                pass
+            else:
+                key, value = y[0],y[1]
+                self.headers[key] = value
+        #print repr(self.get_raw_requets())
         return self.headers
 
     def get_payload(self):
         """Get payload from requets"""
-        self.payload = self.request_raw_splited[-1]
+        #print self.payload
         if 'urlencoded' in self.get_headers()['Content-Type']:
             self.payload = self.payload.split('&')
             for element in self.payload:
@@ -37,9 +44,10 @@ class HTTPRequestHandler():
                 self.payload_dict[element[0]] = unquote(element[1]).decode('utf8')
             return self.payload_dict, self.request_raw_splited[-1]
         else:
-            return -1
+            return self.payload
 
-
+    def get_raw_requets(self):
+        return self.raw_request
 
 
 # Using this new class is really easy! =)
