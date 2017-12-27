@@ -7,14 +7,14 @@ from urllib import unquote
 class HTTPRequestHandler():
 
     def __init__(self, request_raw):
-        self.raw_request = request_raw
+        self.raw_request = request_raw.replace("\r", "")
         self.http_method = ''
         self.resquest_path= ''
         self.protocol_version = ''
         self.headers = {}
         self.payload_dict = {}
-        self.payload = request_raw.split('\n\n')[1]
-        self.request_raw_splited = filter(None,request_raw.split('\n\n')[0].replace('\r','').split('\n'))
+        self.payload = self.raw_request.split('\n\n')[1]
+        self.request_raw_splited = filter(None,self.raw_request.split('\n\n')[0].replace('\r','').split('\n'))
 
     def get_http_method_path_version(self):
         """Get the HTTP method, version """
@@ -47,7 +47,7 @@ class HTTPRequestHandler():
             return self.payload
 
     def get_raw_requets(self):
-        return self.raw_request
+        return repr(self.raw_request)
 
 
 # Using this new class is really easy! =)

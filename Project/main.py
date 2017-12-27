@@ -244,4 +244,4 @@ def get_inserted_cookies(cookies_str):
 
 
 if __name__ == "__main__":
-    teste_attack('C:/Users/SWAT/Documents/Analises/1055/PTManager/')
+    teste_attack('/media/veracrypt1/Relatorio/1232/1232/PTManager/')
