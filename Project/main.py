@@ -113,7 +113,7 @@ def teste_attack(path_vulns=""):
 
             #monta a url da requisição
             try:
-                url = 'http://'+request_headers['Host'] + request_path
+                url = 'https://'+request_headers['Host'] + request_path
 
                 #verifica qual metodo está sendo utilizado
                 if not cookies_provided:
@@ -123,9 +123,9 @@ def teste_attack(path_vulns=""):
                     elif request_method == "GET":
                         if request_payload == '':
                             #print request_headers
-                            r = requests.get(url, headers=request_headers, timeout=20, verify=False, proxies=proxyDict)
+                            r = requests.get(url, headers=request_headers, timeout=20)#, verify=False)#, proxies=proxyDict)
                         else:
-                            r = requests.get(url, data=request_payload,headers=request_headers, timeout=20, verify=False, proxies=proxyDict)
+                            r = requests.get(url, data=request_payload,headers=request_headers, timeout=20)#, verify=False)#, proxies=proxyDict)
 
                     elif request_method == "OPTIONS":
                         r = requests.options(url)
@@ -134,7 +134,7 @@ def teste_attack(path_vulns=""):
                     if request_method == "POST":
                         request_payload = request_field.get_payload()[1]
                         r = requests.post(url, data=request_payload, headers=request_headers,
-                                          cookies=cookies_dict,timeout=20)  # , proxies=proxyDict)
+                                          cookies=cookies_dict,timeout=20,verify=False, proxies=proxyDict)
                     elif request_method == "GET":
                         if request_payload == '':
                             # print request_headers
@@ -159,7 +159,7 @@ def teste_attack(path_vulns=""):
                     if request_method == "POST":
                         request_payload = request_field.get_payload()[1]
                         r = requests.post(url, data=request_payload, headers=request_headers,
-                                          timeout=20)  # , proxies=proxyDict)
+                                          timeout=20 , proxies=proxyDict)
                     elif request_method == "GET":
                         if request_payload == '':
                             # print request_headers
@@ -176,7 +176,7 @@ def teste_attack(path_vulns=""):
                     if request_method == "POST":
                         request_payload = request_field.get_payload()[1]
                         r = requests.post(url, data=request_payload, headers=request_headers,
-                                          cookies=cookies_dict, timeout=20)  # , proxies=proxyDict)
+                                          cookies=cookies_dict, timeout=20, proxies=proxyDict)
                     elif request_method == "GET":
                         if request_payload == '':
                             # print request_headers
@@ -244,4 +244,4 @@ def get_inserted_cookies(cookies_str):
 
 
 if __name__ == "__main__":
-    teste_attack('/media/veracrypt1/Relatorio/1232/1232/PTManager/')
+    teste_attack('/media/veracrypt1/Relatorio/teste_conecta/PTManager/')

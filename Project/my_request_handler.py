@@ -38,11 +38,14 @@ class HTTPRequestHandler():
         """Get payload from requets"""
         #print self.payload
         if 'urlencoded' in self.get_headers()['Content-Type']:
-            self.payload = self.payload.split('&')
-            for element in self.payload:
-                element = element.split('=')
-                self.payload_dict[element[0]] = unquote(element[1]).decode('utf8')
-            return self.payload_dict, self.request_raw_splited[-1]
+            try:
+                self.payload = self.payload.split('&')
+                for element in self.payload:
+                    element = element.split('=')
+                    self.payload_dict[element[0]] = unquote(element[1]).decode('utf8')
+                return self.payload_dict, "&".join(self.payload)#self.request_raw_splited[-1])
+            except:
+                return self.payload
         else:
             return self.payload
 
